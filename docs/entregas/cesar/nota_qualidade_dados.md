@@ -2,6 +2,8 @@
 
 **Responsável:** Caio César Leandro Amorim (qualidade do dataset e interpretação dos resultados)
 **Destinatários:** Abraão (decisões), Sena (regras), Letícia (documentação); Matheus (testes) para conhecimento.
+**Versão:** 2 (2026-11-25), consolidada após as entregas de Abraão (PR #7), Sena (PR #5) e Matheus (PRs #3 e #6).
+**Status:** todas as pendências estão **encerradas**, com decisão ou limitação registrada (ver §Encerramento).
 **Base:** `tests/data/PD_Bank_Analyzer_Dataset_Completo_Alunos_1.xlsx`, versão 2.0, `data_referencia` 2026-11-05,
 SHA-256 `70e7e7598125fa5026fbc36adba65322247c3adac62d699020fc0157c2299e76`. O arquivo **não** foi alterado; o hash é
 conferido de novo depois de gerar a cópia de teste.
@@ -28,6 +30,8 @@ A tabela resumida das pendências está em `pendencias_dados.csv`.
   (P3, P8) são recomendações para Sena e Abraão, com o impacto já medido.
 * A R09 domina o volume: 287 de 431 achados (66,6%). Desses, 124 são `Recertificacao_Vencida` de severidade baixa.
   A recomendação é manter, mas separar na apresentação (P6).
+* **Após as decisões da equipe (v2):** A1–A3 aprovadas e A4 aprovada com ressalva (Abraão); TC15 passou a
+  *não aplicável* (D3); Sena e Matheus confirmaram o tratamento de P3, P4, P5, P6 e P8. Nenhuma pendência ficou sem dono.
 
 ## Decisões por pendência
 
@@ -68,6 +72,10 @@ não permite concluir e isso fica registrado.
   verificação: Admin permanente de aplicação em recurso Crítico com justificativa genérica vira revisão de severidade
   alta, endereçada ao dono da aplicação.
 * **Impacto se adotado:** +7 achados (ou itens de revisão). Hoje: 0.
+* **Fechamento (v2):** a revisão da Sena confirmou "manter a regra humana como está até que exista baseline técnico
+  explícito" e propôs um inventário de contas técnicas priorizando os 7 Admin. Abraão não abriu decisão contrária.
+  **Encerrada:** fora da R01 na v0.4.0. O inventário de contas técnicas foi para o backlog da Semana 2. Isso é dedução
+  da equipe de dados a partir das duas entregas, não uma decisão formal escrita pelo Abraão.
 
 ### P4 — Usuários em `Licenca` e a R07
 * **Evidência:**
@@ -81,6 +89,9 @@ não permite concluir e isso fica registrado.
 * **Recomendação (Abraão):** revisar manualmente o caso U052/RES02 Approve, que é poder de aprovação de pagamento. Se o
   dataset final trouxer a data da licença, avaliar um achado de *atenção* para uso durante a licença.
 * **Impacto:** nenhum nos 431.
+* **Fechamento (v2):** confirmado por Sena ("não usar licença como sinônimo de desligamento") e por Matheus (teste T1:
+  `test_r07_only_dismissed_users_not_those_on_leave`). **Encerrada.** A revisão de U052/RES02 fica como ação operacional
+  do dono do recurso, fora do motor.
 
 ### P5 — Linha AI07 deslocada
 * **Evidência:** linha 8 de `casos_uso_ia`.
@@ -104,6 +115,10 @@ não permite concluir e isso fica registrado.
   com impacto Alto, a premissa A2 exige revisão humana obrigatória, e a AI07 tem `Amostral`. A AI07 já tinha
   `Fonte_Nao_Aprovada` (DA09), que não muda.
 * **Recomendação (dono do dataset / Abraão):** corrigir na fonte e informar `business_area`.
+* **Fechamento (v2):** com a **A2 aprovada** pelo Abraão, o `Guardrail_Ausente` da cópia corrigida deixa de depender de
+  premissa e passa a ser o resultado esperado. Matheus reproduziu o delta (T7 e relatório de validação), e Sena manteve
+  `insufficient_information` para a linha original. **Encerrada.** A correção na fonte fica com o dono do dataset. Como
+  o dataset final "poderá conter dados diferentes", o motor continua sem adivinhar.
 
 ### P6 — 124 `Recertificacao_Vencida` da R09
 * **Evidência:** `revisoes_acesso` tem 257 Manter, 155 Pendente e 8 Remover. Dos Manter, 124 têm a próxima revisão
@@ -114,6 +129,8 @@ não permite concluir e isso fica registrado.
 * **Recomendação (Letícia / frontend):** apresentar separado de `Revisao_Vencida` (155) e `Remocao_Nao_Executada` (8),
   porque a R09 sozinha soma 66,6% do total. Opcional para Abraão: elevar para medium as que passam de 180 dias (41).
 * **Impacto:** nenhum na contagem. A opção de elevar muda só a severidade de 41 achados.
+* **Fechamento (v2):** Sena manteve a decisão e recomendou segmentar por `finding_type`. Elevar acima de 180 dias só
+  com política de SLA aprovada. **Encerrada:** low, separado por tipo, sem elevação na v0.4.0.
 
 ### P7 — EX003, EX004 e TC15
 * **Evidência:**
@@ -126,7 +143,9 @@ não permite concluir e isso fica registrado.
   * Para comparação, EX001 e EX002 cobrem 1 achado de R01 cada.
 * **Decisão:** limitação. O motor não inventa achado para "consumir" uma exceção. EX003 e EX004 continuam como
   "exceção sem objeto" em `coverage.EXCEPTIONS`, e o TC15 continua "não casa", com esta justificativa.
-* **Recomendação (Abraão):** registrar o TC15 como divergência explicada. O caso de teste supõe um risco que os dados
+* **Fechamento (v2): decidido pelo Abraão (D3).** TC15 = **não aplicável**, sem regra nova. EX003/EX004 continuam em
+  `coverage.EXCEPTIONS`. No código o veredito segue `unmatched`, lido como não aplicável. **Encerrada.**
+* **Recomendação original (Abraão):** registrar o TC15 como divergência explicada. O caso de teste supõe um risco que os dados
   de AI03 não mostram, porque os controles estão completos. Se a banca exigir, a alternativa é uma política
   explícita ("caso de IA de impacto Alto em Desenvolvimento só é aceito com exceção vigente"). Isso seria regra nova
   (Sena), não correção de dado.
@@ -149,10 +168,30 @@ não permite concluir e isso fica registrado.
   geraria 1 achado real (DA09: `salario` × `contains_financial_data=Nao`). Os outros 3 dependem de decidir se
   `customer_id` é Financeiro; a sugestão é recategorizar como identificador e não gerar achado.
 * **Impacto se adotado:** +1 achado na R03 (ou +4, se `customer_id` continuar como Financeiro).
+* **Fechamento (v2):** Sena decidiu que a "R03 não incorpora a aba nesta versão", e o relatório de Matheus registra a
+  aba como importada e preservada. **Encerrada:** preservada. O caso DA09 (`salario` × `contains_financial_data=Nao`) e
+  a recategorização de `customer_id` foram para o backlog como melhoria de regra.
 
-## Fora do escopo desta nota (decisões de política, não de dados)
-TC01 × EX001 (*Atenção* × *Revisão*) e as premissas A1–A4 ficam com Abraão. Esta nota só mede o efeito da A2 sobre a
-AI07 (P5).
+## Decisões de política que afetam esta nota (Abraão, 2026-11-25)
+* **D1 — TC01 × EX001:** continua *Revisão*; exceção válida não rebaixa achado crítico. Não muda nenhuma contagem
+  desta nota (o achado segue `valid_exception`).
+* **D2 — TC09:** "Calcular" = aplicar a R04 à linha; SH005 confere.
+* **D3 — TC15:** não aplicável (ver P7).
+* **A1–A3 aprovadas; A4 aprovada com ressalva.** A A2 consolida o impacto medido na P5.
+* Os casos públicos ficam em 14 conferem, 1 não aplicável e 0 divergentes.
+
+> Observação para a Sena: `revisao_regras_governanca.md` ainda trata A1–A4 e TC01 como pendentes, porque foi escrito
+> antes do PR #7. Vale atualizar para "aprovadas".
+
+## Encerramento — checklist do kit
+
+| Critério do kit | Situação |
+|---|---|
+| Cada pendência do relatório tem decisão ou limitação explícita | ✅ P1–P8 encerradas (tabela `pendencias_dados.csv`) |
+| Nenhuma decisão baseada em suposição não registrada | ✅ Toda evidência é reproduzida pelo script e travada em teste. Os fechamentos deduzidos (P3, P8) estão marcados como tal |
+| Original oficial intacto | ✅ SHA-256 `70e7e759…c2299e76` conferido após gerar a cópia |
+| Conclusões disponíveis para Abraão, Sena, Matheus e Letícia | ✅ Usadas no PR #5 (Sena), nos PRs #3/#6 (Matheus), no README (seção de qualidade) e no relatório do Boniek |
+| Backlog gerado para a Semana 2 | Inventário de contas técnicas (P3); correção da AI07 na fonte (P5); SLA de R09 (P6); checagem de flags via `campos_dados` em R03 (P8) |
 
 ## Observações de ambiente (para Matheus e Boniek)
 * No Windows, `pytest -q` na `main` tem 7 falhas em `tests/test_sql_repository.py` por
