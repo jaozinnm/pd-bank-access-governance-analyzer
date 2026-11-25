@@ -15,6 +15,7 @@ from .public_cases import compare_public_cases
 from .importer import ImportFailure, import_file, safe_filename
 from .openapi import build_spec
 from .repository import FINDING_FILTERS, Repository
+from .role_catalog import get_role_catalog
 from .rules import RULE_IDS, RULE_TITLES, analyze_full
 from .summary import SEVERITIES, STATUSES, summarize
 from .validation import validate_data
@@ -125,6 +126,11 @@ def create_app(repository: Repository | None = None, settings: Settings | None =
     @app.get("/api/rules")
     def rules_catalog():
         return jsonify([{"rule_id": r, "title": RULE_TITLES[r]} for r in RULE_IDS])
+
+    @app.get("/api/roles")
+    def roles_catalog():
+        """Catálogo funcional proposto; não representa permissões concedidas."""
+        return jsonify(get_role_catalog())
 
     @app.post("/api/datasets/import")
     def import_dataset():

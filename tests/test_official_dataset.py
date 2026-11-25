@@ -103,10 +103,10 @@ class OfficialDatasetTests(unittest.TestCase):
     # --- casos públicos
     def test_public_cases_comparison_is_honest(self):
         c = self.cases
-        self.assertEqual(c["summary"], {"total": 15, "match": 12, "divergent": 1, "unmatched": 1, "computed": 1})
+        self.assertEqual(c["summary"], {"total": 15, "match": 13, "divergent": 0, "unmatched": 1, "computed": 1})
         v = {x["test_case_id"]: x["verdict"] for x in c["cases"]}
-        self.assertEqual((v["TC01"], v["TC09"], v["TC15"]), ("divergent", "computed", "unmatched"))
-        for tc in ("TC02", "TC03", "TC04", "TC05", "TC06", "TC07", "TC08", "TC10", "TC11", "TC12", "TC13", "TC14"):
+        self.assertEqual((v["TC01"], v["TC09"], v["TC15"]), ("match", "computed", "unmatched"))
+        for tc in ("TC01", "TC02", "TC03", "TC04", "TC05", "TC06", "TC07", "TC08", "TC10", "TC11", "TC12", "TC13", "TC14"):
             self.assertEqual(v[tc], "match", tc)
 
     def test_export_csv_has_traceability_columns(self):

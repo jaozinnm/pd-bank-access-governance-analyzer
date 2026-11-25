@@ -10,6 +10,7 @@ CORS: defina `CORS_ORIGINS=http://localhost:5173`. Se `API_KEY` estiver definido
 |---|---|---|---|
 | `GET /api/health` | Saúde + banco | 200 / 503 | |
 | `GET /api/rules` | Catálogo R01–R09 | 200 `Rule[]` | |
+| `GET /api/roles` | Catálogo funcional proposto (papéis, responsabilidades, incompatibilidades e elevação) | 200 `RoleCatalog` | |
 | `POST /api/datasets/import` | multipart, campo `file` (.xlsx/.csv/.zip, ≤50 MB) | 201 `ImportResponse` | 400, 413 |
 | `POST /api/datasets/validate` | `{ tables: Record<string, object[]> }` | 200 `ValidationResult` | 400 |
 | `GET /api/datasets` | Datasets importados (mais recente primeiro) | 200 `Dataset[]` | |
@@ -24,6 +25,10 @@ CORS: defina `CORS_ORIGINS=http://localhost:5173`. Se `API_KEY` estiver definido
 
 Filtros de `/api/findings`: `analysis_id`, `domain` (igualdade exata), `rule_id` (R01–R09, case-insensitive), `severity` (`critical|high|medium|low`), `status`, `exception_status` (`none|valid|expired|future`), `q` (trecho de `object_ref`), `limit` (1–1000, padrão 200), `offset`. Valor inválido → 400. Para paginar, leia o cabeçalho `X-Total-Count` (exposto via CORS).
 
+### Catálogo funcional de papéis (`GET /api/roles`)
+
+Retorna um objeto `RoleCatalog` versionado com `status`, `source_notes`, lista `roles` e `separation_constraints`. Cada papel inclui identificador, nome, área de origem, perfil macro, finalidade, responsabilidades, incompatibilidades e `elevated_access` (necessidade, modo, permanência e justificativa). Os papéis R01–R14 preservam os IDs, nomes e áreas da aba `catalogo_papeis` do dataset oficial; as responsabilidades e controles são propostas para discussão. Os papéis `EXT-*` são personas externas de cliente do briefing e não integram o catálogo de funcionários nem o baseline interno. O endpoint é informativo: não atribui, revoga ou autoriza acessos.
+
 ## Tipos TypeScript
 
 ```ts
@@ -31,6 +36,18 @@ export type RuleId = "R01"|"R02"|"R03"|"R04"|"R05"|"R06"|"R07"|"R08"|"R09";
 export type Severity = "critical"|"high"|"medium"|"low";
 export type FindingStatus = "non_compliant"|"insufficient_information"|"valid_exception"|"compliant";
 export type ExceptionStatus = "none"|"valid"|"expired"|"future";
+export interface RoleCatalog {
+  version: string; status: "proposed"; source_notes: string[];
+  roles: Array<{
+    role_id: string; name: string; area: string; macro_profile: string;
+    catalog_status: string; purpose: string; responsibilities: string[];
+    incompatibilities: string[];
+    elevated_access: { required: boolean; mode: string; permanent: boolean; rationale: string };
+  }>;
+  separation_constraints: Array<{
+    constraint_id: string; roles: string[]; activities: string[]; rationale: string; status: string;
+  }>;
+}
 
 export interface Dataset { id: number; name: string; created_at: string; table_counts: Record<string, number | null>; }
 

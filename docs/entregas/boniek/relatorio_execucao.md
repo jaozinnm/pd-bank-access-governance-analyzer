@@ -80,10 +80,7 @@ e um banco `pd_bank_test` separado do banco da demonstração.
 O ZIP de código-fonte fica fora do repositório, em `../entrega-boniek/`, sem `.git`,
 bancos, `.env` reais, venv, dependências instaladas, caches ou `dist/`. Inclui os dois
 `.env.example`, lockfile, frontend, testes, Excel oficial, READMEs e estas evidências.
+
 O pacote final inclui a mesma implementação validada na extração e o relatório
 consolidado depois do teste. Após o commit, `git archive` (comando no README) permite
 gerar novamente o pacote. O SHA-256 do ZIP fica no arquivo `SHA256SUMS.txt` ao lado dele.
-
-Boniek deve abrir o PR e encaminhar o ZIP e este relatório a Larysse e Letícia.
-O envio às integrantes não foi realizado nesta sessão; a revisão visual permanece
-explicitamente pendente para QA.

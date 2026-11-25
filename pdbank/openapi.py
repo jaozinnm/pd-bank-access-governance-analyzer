@@ -57,6 +57,23 @@ def build_spec(version: str) -> dict:
                          "description": "Por regra (R01–R09) e EXCEPTIONS: avaliada ou pulada (com motivo)."},
             "findings": _arr("Finding")}},
         "Rule": {"type": "object", "properties": {"rule_id": {"type": "string"}, "title": {"type": "string"}}},
+        "Role": {"type": "object", "required": ["role_id", "name", "area", "macro_profile", "responsibilities", "incompatibilities", "elevated_access"],
+                 "properties": {"role_id": {"type": "string"}, "name": {"type": "string"}, "area": {"type": "string"},
+                                "macro_profile": {"type": "string"}, "catalog_status": {"type": "string"}, "purpose": {"type": "string"},
+                                "responsibilities": {"type": "array", "items": {"type": "string"}},
+                                "incompatibilities": {"type": "array", "items": {"type": "string"}},
+                                "elevated_access": {"type": "object", "properties": {
+                                    "required": {"type": "boolean"}, "mode": {"type": "string"},
+                                    "permanent": {"type": "boolean"}, "rationale": {"type": "string"}}}}},
+        "SeparationConstraint": {"type": "object", "required": ["constraint_id", "roles", "activities", "rationale", "status"],
+                                 "properties": {"constraint_id": {"type": "string"}, "roles": _arr("RoleId"),
+                                                "activities": {"type": "array", "items": {"type": "string"}},
+                                                "rationale": {"type": "string"}, "status": {"type": "string"}}},
+        "RoleId": {"type": "string"},
+        "RoleCatalog": {"type": "object", "required": ["version", "status", "roles", "separation_constraints"],
+                        "properties": {"version": {"type": "string"}, "status": {"type": "string"},
+                                       "source_notes": {"type": "array", "items": {"type": "string"}},
+                                       "roles": _arr("Role"), "separation_constraints": _arr("SeparationConstraint")}},
     }
     filters = [
         _qp("analysis_id", {"type": "integer", "minimum": 1}, "Filtra por análise"), _qp("domain", {"type": "string"}, "Categoria/domínio (igualdade exata)"),
@@ -76,6 +93,7 @@ def build_spec(version: str) -> dict:
         "paths": {
             "/api/health": {"get": {"summary": "Health check", "responses": {"200": _json({"type": "object"}), "503": _json({"type": "object"}, "Banco indisponível")}}},
             "/api/rules": {"get": {"summary": "Catálogo de regras", "responses": {"200": _json(_arr("Rule"))}}},
+            "/api/roles": {"get": {"summary": "Catálogo funcional de papéis proposto", "description": "R01–R14 reproduzem IDs, nomes e áreas do dataset oficial; responsabilidades, incompatibilidades e elevação são propostas. O endpoint não concede permissões.", "responses": {"200": _json(_ref("RoleCatalog"))}}},
             "/api/datasets/import": {"post": {"summary": "Importar XLSX, CSV ou ZIP (multipart, campo 'file')",
                 "requestBody": {"required": True, "content": {"multipart/form-data": {"schema": {"type": "object", "required": ["file"], "properties": {"file": {"type": "string", "format": "binary"}}}}}},
                 "responses": {"201": _json(_ref("ImportResponse"), "Importado"), "400": _err("Arquivo inválido/malicioso/formato não suportado"), "413": _err("Acima de 50 MB")}}},

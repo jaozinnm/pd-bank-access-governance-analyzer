@@ -1,37 +1,35 @@
-﻿# Resultados Obtidos — Execução v0.4.0
+﻿# Resultados Obtidos — Execução da Suíte de Testes (v0.4.0)
 
 * **Responsáveis:** Matheus do Nascimento Gomes Vaz e Mateus Valerino Barros de Santana
-* **Snapshot Oficial Analisado:** `PD_Bank_Analyzer_Dataset_Completo_Alunos_1.xlsx` (SHA-256 `70e7e759...c2299e76`, referência `2026-11-05`)
-* **Totais Gerais Obtidos:** 20/20 abas reconhecidas (0 avisos), 1.890 registros processados, **431 achados** (`44 critical`, `119 high`, `142 medium`, `126 low`), todas as 9 regras (`R01`–`R09`) efetivamente avaliadas.
+* **Data de Referência:** `2026-11-05` (`dataset_info.data_referencia`)
+* **Comando Base:** `.venv\Scripts\python.exe -m pytest`
 
 ---
 
-## 1. Resultados Obtidos nos 8 Casos Formais
+## 1. Resumo Quantitativo do Motor (`PD_Bank_Analyzer_Dataset_Completo_Alunos_1.xlsx`)
 
-| ID | Resultado Obtido pelo Sistema | Classificação | Status | Evidência de Comprovação |
-| :--- | :--- | :--- | :--- | :--- |
-| **T1** | Motor gerou 5 ocorrências de `Conta_Desligada` em `R07` (`U037`, `U074`, `U111`, `U148`, `U150`), incluindo `U037/RES04` com severidade `critical` e `status = non_compliant`. Usuários em licença (`U052`, `U105`) não foram marcados indevidamente em `R07`. | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py::test_r07_only_dismissed_users_not_those_on_leave` |
-| **T2** | Motor gerou `Proprietario_Ausente` (`high`) para `DA18` e `Classificacao_Ausente` (`high`) para `DA20` na regra `R03` (total de 7 achados em `R03`). | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py::test_r03_r04_r08_planted_cases` |
-| **T3** | Motor gerou `Guardrail_Ausente` (`high`) para `AI02` apontando falta de proteção contra *prompt injection* na regra `R05`. | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py::test_ai_findings_use_controles_ia_values` |
-| **T4** | Nenhum achado gerado para `(U001, RES01)` em `R01` (dentro dos 507 registros de usuários avaliados, apenas 11 pares geraram `Excesso_de_Privilegio` e 5 geraram `Modo_de_Acesso_Divergente`). | **Verdadeiro Negativo (VN)** | **Aprovado** | `tests/test_official_dataset.py::test_r01_outside_baseline_exactly_the_eleven_anomalies` |
-| **T5** | Zero achados gerados para `AI12` em `R05`/`R06` e zero achados gerados para `DA02` em `R04`. | **Verdadeiro Negativo (VN)** | **Aprovado** | `tests/test_official_dataset.py::test_ai_findings_use_controles_ia_values` e `test_public_cases_comparison_is_honest` |
-| **T6** | 1) `R08` gerou 4 achados de `Acesso_Expirado` (`high`), incluindo `(U010, RES01)`;<br>2) Na data `2026-11-05`, as 4 exceções foram validadas (`valid: 4`), convertendo `(U003, RES03, R01)` via `EX001` e `(U057, RES06, R01)` via `EX002` para `status = valid_exception`. | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py::test_exception_association_and_validity` |
-| **T7** | 1) Para `AI07`, o motor gerou `Dado_Inconsistente` (`status = insufficient_information`, `low`) em `R06` devido ao deslocamento de colunas na origem, sem interromper o disparo de `Fonte_Nao_Aprovada` (`DA09`) em `R05`;<br>2) `POST /api/datasets/validate` retornou `200`, header `Access-Control-Allow-Origin: http://localhost:5173` e `GET /api/datasets` permaneceu vazio (`[]`). | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py` e `tests/test_frontend_integration.py::test_frontend_multipart_validation_does_not_persist` |
-| **T8** | 1) Para `AI14/DA03`, o motor gerou `Risco_Integrado` (`critical`), `Agencia_Excessiva` (`critical`) e `Acesso_Excessivo` (`critical`);<br>2) `GET /api/findings` retornou `200` com `X-Total-Count` presente em `Access-Control-Expose-Headers`. | **Verdadeiro Positivo (VP)** | **Aprovado** | `tests/test_official_dataset.py` e `tests/test_frontend_integration.py::test_frontend_cors_exposes_total_count` |
+* **Importação:** 20 abas lidas e reconhecidas (`valido: true`, 1.890 registros, 0 avisos).
+* **Total de Achados:** **431**
+  * **Por Severidade:** `critical`: 44 | `high`: 119 | `medium`: 142 | `low`: 126
+  * **Por Status:** `non_compliant`: 428 | `valid_exception`: 2 | `insufficient_information`: 1 | `compliant`: 0
+  * **Por Regra:** `R01`: 16 | `R02`: 5 | `R03`: 7 | `R04`: 65 | `R05`: 25 | `R06`: 3 | `R07`: 19 | `R08`: 4 | `R09`: 287
+* **Casos Públicos (`casos_teste_publicos` — 15 casos após decisões `D1`–`D3`):**
+  * `match`: **13** (`TC01`–`TC08`, `TC10`–`TC14`)
+  * `computed`: **1** (`TC09` — `SH005`, conferente conforme `D2`)
+  * `unmatched`: **1** (`TC15` — `AI03/DA12`, não aplicável conforme `D3`)
+  * `divergent`: **0**
 
 ---
 
-## 2. Distribuição de Achados Obtidos por Regra (Snapshot Oficial)
+## 2. Resultados Obtidos por Caso de Teste (`T1`–`T8`)
 
-| Regra | Título no Motor | Registros Verificados | Achados Gerados | Observação Técnica |
-| :--- | :--- | :---: | :---: | :--- |
-| **R01** | Acesso fora do baseline RBAC | 507 | **16** | 11 `Excesso_de_Privilegio` + 5 `Modo_de_Acesso_Divergente`; 29 permissões de `Aplicacao` não comparadas. |
-| **R02** | Conflito de segregação de funções (SoD) | 8 | **5** | Usuários `U021`, `U035`, `U043`, `U099`, `U141` (via papel ou permissão efetiva — premissa `A4`). |
-| **R03** | Ativo sem classificação/proprietário | 30 | **7** | `DA18` (sem proprietário), `DA20` (sem classificação) + 5 classificações divergentes. |
-| **R04** | Compartilhamento/retenção fora da política | 130 | **65** | 46 destinos não aprovados + 16 proteções insuficientes + 3 retenções ausentes (`DA18`, `DA20`, `DA23`). |
-| **R05** | Caso de IA sem controles/fontes aprovadas | 64 | **25** | 6 `Guardrail_Ausente`, 2 `Acesso_Excessivo`, 4 `Fonte_Nao_Aprovada`, 12 `Fonte_Sem_Minimizacao`, 1 `Risco_Integrado`. |
-| **R06** | Autonomia de IA acima do limite | 15 | **3** | 2 `Agencia_Excessiva` (`AI06`, `AI14`) + 1 `Dado_Inconsistente` (`AI07`). |
-| **R07** | Acesso remanescente de usuário desligado | 536+ | **19** | 5 usuários desligados (`U037`, `U074`, `U111`, `U148`, `U150`); usuários em licença (`U052`, `U105`) excluídos. |
-| **R08** | Acesso temporário vencido | 536 | **4** | Usuários `U010`, `U018`, `U046`, `U088`. |
-| **R09** | Revisão de acesso pendente/vencida | 420 | **287** | 155 revisões vencidas + 8 remoções não executadas + 124 recertificações vencidas (`low`). |
-| **Total** | — | — | **431** | `44 critical`, `119 high`, `142 medium`, `126 low`. |
+| ID | Teste Automatizado Executado | Status | Resultado Obtido e Evidência |
+| :--- | :--- | :--- | :--- |
+| **T1** | `tests/test_official_dataset.py::OfficialDatasetTests::test_r07_only_dismissed_users_not_those_on_leave` | **PASSED** (`1.67s`) | 19 achados `Conta_Desligada` em `R07` para os 5 usuários desligados (`U037`, `U074`, `U111`, `U148`, `U150`); `U052` e `U105` (`Licenca`) corretamente ignorados por `R07`. Log: `evidencias/T1_conta_desligada.txt`. |
+| **T2** | `tests/test_official_dataset.py::OfficialDatasetTests::test_r03_r04_r08_planted_cases` | **PASSED** (`1.40s`) | 7 achados em `R03` (`DA18` sem proprietário, `DA20` sem classificação e 5 divergências de classificação), além de `DA23` em `R04`. Log: `evidencias/T2_ativos_dados_incompletos.txt`. |
+| **T3** | `tests/test_official_dataset.py::OfficialDatasetTests::test_ai_findings_use_controles_ia_values` | **PASSED** (`1.38s`) | `AI02` detectado com `Guardrail_Ausente` (`high`) em `R05`; total de 6 achados `Guardrail_Ausente` coerentes com `controles_ia`. Log: `evidencias/T3_ia_guardrail_ausente.txt`. |
+| **T4** | `tests/test_official_dataset.py::OfficialDatasetTests::test_r01_outside_baseline_exactly_the_eleven_anomalies` | **PASSED** (`1.33s`) | 0 achados em `R01` para `U001/RES01` (`TC05`); exatamente 11 `Excesso_de_Privilegio` e 5 `Modo_de_Acesso_Divergente` detectados nas 507 permissões humanas avaliadas. Log: `evidencias/T4_acesso_conforme_baseline.txt`. |
+| **T5** | `tests/test_official_dataset.py::OfficialDatasetTests::test_public_cases_comparison_is_honest` | **PASSED** | `AI12` (`TC12`) e `DA02` (`TC08`) retornaram `0` achados (`Conforme`); `TC01` atualizado para `match` após decisão `D1` (`13 match, 0 divergent, 1 computed, 1 unmatched`). Log: `evidencias/T5_ia_baixo_impacto_e_retencao_ok.txt`. |
+| **T6** | `tests/test_official_dataset.py::OfficialDatasetTests::test_exception_association_and_validity` | **PASSED** (`1.51s`) | 4 achados `Acesso_Expirado` (`R08`, incluindo `U010/RES01`); 4 exceções válidas (`expired: 0`), com `EX001` e `EX002` associadas aos respectivos achados de `R01` como `valid_exception`. Log: `evidencias/T6_fronteira_datas_e_excecoes.txt`. |
+| **T7** | `tests/test_frontend_integration.py::test_frontend_multipart_validation_does_not_persist` *(e `test_ai_findings_use_controles_ia_values`)* | **PASSED** (`0.47s`) | `AI07` gerou `Dado_Inconsistente` (`insufficient_information`) em `R06` sem interromper `Fonte_Nao_Aprovada` (`DA09`) em `R05`; endpoint `/api/datasets/validate` retornou `200` com CORS ativo e `0` registros persistidos no banco. Log: `evidencias/T7_adversarial_ai07_e_multipart.txt`. |
+| **T8** | `tests/test_frontend_integration.py::test_frontend_cors_exposes_total_count` *(e `test_public_cases_comparison_is_honest`)* | **PASSED** (`0.55s`) | `AI14/DA03` (`TC14`) gerou `Risco_Integrado` (`critical`) e achados correlatos em `R05`/`R06`; `/api/findings` retornou cabeçalho `X-Total-Count` exposto via CORS. Log: `evidencias/T8_integrado_ai14_da03_e_cors.txt`. |

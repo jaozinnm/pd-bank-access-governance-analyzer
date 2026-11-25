@@ -68,9 +68,10 @@ def compare_public_cases(data: dict, findings: list) -> dict:
         extra = [f for f in findings if str(f["subject_id"]).lower() == str(subject).lower() and not scope(f)]
         sevs = [f["severity"] for f in in_scope]
         open_ = [f for f in in_scope if f["status"] != "valid_exception"]
+        covered_crit = any(f["status"] == "valid_exception" and f["severity"] == "critical" for f in in_scope)
         actual = {"findings": len(in_scope), "types": sorted({f["finding_type"] for f in in_scope}),
                   "max_severity": max(sevs, key=SEV_ORDER.index) if sevs else None,
-                  "decision": "Conforme" if not in_scope else ("Revisao" if open_ else "Atencao")}
+                  "decision": "Conforme" if not in_scope else ("Revisao" if open_ or covered_crit else "Atencao")}
         res["actual"], res["matched_findings"] = actual, [_brief(f) for f in in_scope]
         res["extra_findings"] = [{"rule_id": k[0], "finding_type": k[1], "severity": k[2], "count": n}
                                  for k, n in sorted(Counter((f["rule_id"], f["finding_type"], f["severity"]) for f in extra).items())]
@@ -103,7 +104,7 @@ def compare_public_cases(data: dict, findings: list) -> dict:
                 problems = []
                 if exp_pri and top != exp_pri:
                     problems.append(f"prioridade do motor = {top}, esperada = {exp_pri}")
-                if exp_dec == "revisao" and covered:
+                if exp_dec == "revisao" and covered and top != "critical":
                     problems.append("o achado está coberto por exceção válida (decisão do motor: Atencao), mas o caso espera Revisao — "
                                     "o caso público não considera a exceção; decisão de negócio pendente")
                 verdict = "match" if not problems else "divergent"

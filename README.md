@@ -116,7 +116,7 @@ O frontend e o backend são executados separadamente e se comunicam pela API RES
 Use dois terminais, sempre partindo da raiz do projeto. 
 Requer: Python 3.10+, Node.js 20+ com npm e Git.
 A execução foi validada em Linux com Python 3.14 e Node.js 24; 
-Detalhes e limitações estão disponíveis no [Relatório de Boniek](docs/entregas/boniek/relatorio_execucao.md).
+Detalhes e limitações estão disponíveis no [Relatório de Execução Front-end + Back-end](docs/entregas/boniek/relatorio_execucao.md).
 
 ```bash
 git clone https://github.com/jaozinnm/pd-bank-access-governance-analyzer.git
