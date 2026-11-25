@@ -104,5 +104,19 @@ class ReconstructionUnitTests(unittest.TestCase):
         self.assertIsNone(reconstruct_shifted_ai_row({"purpose": "x", "action_level": "Alto", "impact_level": "U1"}))
 
 
+class DeliveryClosureTests(unittest.TestCase):
+    """A tabela de pendências da entrega do César precisa estar 100% encerrada e coerente com a nota."""
+    CSV = os.path.join(os.path.dirname(__file__), "..", "docs", "entregas", "cesar", "pendencias_dados.csv")
+
+    def test_every_pending_item_is_closed_with_a_recorded_outcome(self):
+        import csv
+        with open(self.CSV, encoding="utf-8-sig") as fh:
+            rows = list(csv.DictReader(fh, delimiter=";"))
+        self.assertEqual([r["id"] for r in rows], [f"P{i}" for i in range(1, 9)])
+        for r in rows:
+            self.assertEqual(r["status"], "Concluída", r["id"])
+            self.assertTrue(r["decisao"].strip() and r["fechamento_v2"].strip(), r["id"])
+
+
 if __name__ == "__main__":
     unittest.main()
