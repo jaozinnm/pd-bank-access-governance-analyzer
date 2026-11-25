@@ -274,8 +274,8 @@
     "reference_date": "2026-11-05",
     "summary": {
       "total": 15,
-      "match": 12,
-      "divergent": 1,
+      "match": 13,
+      "divergent": 0,
       "unmatched": 1,
       "computed": 1
     },
@@ -297,7 +297,7 @@
             "Excesso_de_Privilegio"
           ],
           "max_severity": "critical",
-          "decision": "Atencao"
+          "decision": "Revisao"
         },
         "matched_findings": [
           {
@@ -317,8 +317,8 @@
             "count": 2
           }
         ],
-        "verdict": "divergent",
-        "explanation": "o achado está coberto por exceção válida (decisão do motor: Atencao), mas o caso espera Revisao — o caso público não considera a exceção; decisão de negócio pendente"
+        "verdict": "match",
+        "explanation": "categoria, prioridade e decisão coincidem"
       },
       {
         "test_case_id": "TC02",
