@@ -381,3 +381,13 @@ Projeto acadêmico em desenvolvimento. A licença de distribuição será defini
 **Da evidência à decisão: governança mais clara, riscos mais visíveis.**
 
 </div>
+
+
+## Entrega técnica final — Residência em Software & IA
+
+- [Índice da entrega](docs/entrega-final/01_Indice_da_Entrega.md)
+- [Documentação de IA](docs/entrega-final/02_Documentacao_IA.pdf)
+- [Catálogo de prompts reconstruídos](docs/prompts/README.md)
+- [Prompts que falharam](docs/entrega-final/03_Prompts_Que_Falharam.pdf)
+
+A IA foi utilizada durante a engenharia de software. O motor de análise é determinístico e não exige chaves de serviços de LLM. As variáveis API_KEY e VITE_API_KEY referem-se à API do próprio sistema; não exponha segredos no frontend. Consulte os exemplos de ambiente existentes. Não há URL de deploy público confirmada neste pacote.
